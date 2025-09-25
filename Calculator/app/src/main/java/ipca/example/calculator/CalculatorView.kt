@@ -28,11 +28,41 @@ fun CalculatorView(
 
     var textDisplay by remember { mutableStateOf("0") }
 
+    var calculatorBrain by remember { mutableStateOf(CalculatorBrain()) }
+
     val onNumPressed : (String) -> Unit = { num->
-        if (textDisplay == "0") {
-            textDisplay = num
-        }else {
-            textDisplay += num
+        if (!(num == "." && textDisplay.contains("."))) {
+            if (textDisplay == "0") {
+                if (num == ".") {
+                    textDisplay = "0."
+                } else {
+                    textDisplay = num
+                }
+            } else {
+                textDisplay += num
+            }
+        }
+    }
+
+    val onOperatorPressed : (String) -> Unit = { operator ->
+        calculatorBrain.operand = textDisplay.toDouble()
+        when (operator) {
+            "+" -> {
+                calculatorBrain.operator = CalculatorBrain.Operation.ADDITION
+            }
+            "-" -> {
+                calculatorBrain.operator = CalculatorBrain.Operation.SUBTRACTION
+            }
+            "x" -> {
+
+            }
+            "/" -> {
+
+            }
+            "=" -> {
+
+            }
+            else -> {}
         }
     }
 
@@ -53,7 +83,7 @@ fun CalculatorView(
             CalculatorButton("7", onClick = onNumPressed)
             CalculatorButton("8", onClick = onNumPressed)
             CalculatorButton("9", onClick = onNumPressed)
-            CalculatorButton("+", isOperator = true, onClick = onNumPressed)
+            CalculatorButton("+", isOperator = true, onClick = onOperatorPressed)
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -62,7 +92,7 @@ fun CalculatorView(
             CalculatorButton("4", onClick = onNumPressed)
             CalculatorButton("5", onClick = onNumPressed)
             CalculatorButton("6", onClick = onNumPressed)
-            CalculatorButton("-", isOperator = true, onClick = onNumPressed)
+            CalculatorButton("-", isOperator = true, onClick = onOperatorPressed)
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -71,7 +101,7 @@ fun CalculatorView(
             CalculatorButton("1", onClick = onNumPressed)
             CalculatorButton("2", onClick = onNumPressed)
             CalculatorButton("3", onClick = onNumPressed)
-            CalculatorButton("x", isOperator = true, onClick = onNumPressed)
+            CalculatorButton("x", isOperator = true, onClick = onOperatorPressed)
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -79,8 +109,8 @@ fun CalculatorView(
         ) {
             CalculatorButton("0", onClick = onNumPressed)
             CalculatorButton(".", onClick = onNumPressed)
-            CalculatorButton("=", isOperator = true, onClick = onNumPressed)
-            CalculatorButton("/", isOperator = true, onClick = onNumPressed)
+            CalculatorButton("=", isOperator = true, onClick = onOperatorPressed)
+            CalculatorButton("/", isOperator = true, onClick = onOperatorPressed)
         }
 
 
