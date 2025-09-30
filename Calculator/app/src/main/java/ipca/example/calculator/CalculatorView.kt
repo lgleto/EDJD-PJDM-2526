@@ -27,43 +27,42 @@ fun CalculatorView(
 ){
 
     var textDisplay by remember { mutableStateOf("0") }
-
     var calculatorBrain by remember { mutableStateOf(CalculatorBrain()) }
 
+    var userIsTypingNumbers by remember { mutableStateOf(true) }
+
     val onNumPressed : (String) -> Unit = { num->
-        if (!(num == "." && textDisplay.contains("."))) {
-            if (textDisplay == "0") {
-                if (num == ".") {
-                    textDisplay = "0."
+        if (userIsTypingNumbers) {
+            if (!(num == "." && textDisplay.contains("."))) {
+                if (textDisplay == "0") {
+                    if (num == ".") {
+                        textDisplay = "0."
+                    } else {
+                        textDisplay = num
+                    }
                 } else {
-                    textDisplay = num
+                    textDisplay += num
                 }
-            } else {
-                textDisplay += num
             }
+        }else{
+            textDisplay = num
         }
+
+        userIsTypingNumbers = true
     }
 
     val onOperatorPressed : (String) -> Unit = { operator ->
-        calculatorBrain.operand = textDisplay.toDouble()
-        when (operator) {
-            "+" -> {
-                calculatorBrain.operator = CalculatorBrain.Operation.ADDITION
-            }
-            "-" -> {
-                calculatorBrain.operator = CalculatorBrain.Operation.SUBTRACTION
-            }
-            "x" -> {
 
-            }
-            "/" -> {
+        calculatorBrain.doOperation(textDisplay.toDouble())
+        calculatorBrain.operator =  CalculatorBrain.Operation.parse(operator)
 
-            }
-            "=" -> {
-
-            }
-            else -> {}
+        if (calculatorBrain.acumulator % 1.0 == 0.0){
+            textDisplay = calculatorBrain.acumulator.toInt().toString()
+        }else {
+            textDisplay = calculatorBrain.acumulator.toString()
         }
+
+        userIsTypingNumbers = false
     }
 
     Column (
@@ -101,7 +100,7 @@ fun CalculatorView(
             CalculatorButton("1", onClick = onNumPressed)
             CalculatorButton("2", onClick = onNumPressed)
             CalculatorButton("3", onClick = onNumPressed)
-            CalculatorButton("x", isOperator = true, onClick = onOperatorPressed)
+            CalculatorButton("×", isOperator = true, onClick = onOperatorPressed)
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -110,7 +109,7 @@ fun CalculatorView(
             CalculatorButton("0", onClick = onNumPressed)
             CalculatorButton(".", onClick = onNumPressed)
             CalculatorButton("=", isOperator = true, onClick = onOperatorPressed)
-            CalculatorButton("/", isOperator = true, onClick = onOperatorPressed)
+            CalculatorButton("÷", isOperator = true, onClick = onOperatorPressed)
         }
 
 
