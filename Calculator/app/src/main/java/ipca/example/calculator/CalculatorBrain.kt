@@ -7,7 +7,11 @@ class CalculatorBrain {
         SUBTRACTION("-"),
         MULTIPLICATION("×"),
         DIVISION("÷"),
-        EQUALS("=");
+        EQUALS("="),
+        CLEAR("AC"),
+        CLEAR_ENTRY("C"),
+        SQRT("√"),
+        PERCENTAGE("%");
 
         companion object {
 
@@ -18,6 +22,10 @@ class CalculatorBrain {
                     "×" -> MULTIPLICATION
                     "÷" -> DIVISION
                     "=" -> EQUALS
+                    "AC" -> CLEAR
+                    "C" -> CLEAR_ENTRY
+                    "√" -> SQRT
+                    "%" -> PERCENTAGE
                     else -> throw IllegalArgumentException("Invalid operation")
                 }
             }
@@ -33,6 +41,14 @@ class CalculatorBrain {
             Operation.SUBTRACTION -> acumulator -= operand
             Operation.MULTIPLICATION -> acumulator *= operand
             Operation.DIVISION -> acumulator /= operand
+            Operation.EQUALS -> return
+            Operation.CLEAR ->  {
+                acumulator = 0.0
+                operator = null
+            }
+            Operation.CLEAR_ENTRY -> acumulator = 0.0
+            Operation.SQRT -> acumulator = kotlin.math.sqrt(operand)
+            Operation.PERCENTAGE -> acumulator = operand / 100
             else -> acumulator = operand
         }
     }

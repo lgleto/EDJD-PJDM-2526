@@ -35,7 +35,8 @@ fun CalculatorButton(
         )
     ) {
         Text(text,
-            fontSize = TextUnit(45f, TextUnitType.Sp))
+            fontSize = TextUnit(
+                if(text.length == 1) 45f else 18f, TextUnitType.Sp))
     }
 }
 
@@ -45,6 +46,7 @@ fun CalculatorButton(
 fun CalculatorButtonPreview(){
     CalculatorTheme {
         CalculatorButton(
+            text = "AC",
             isOperator = false,
         )
     }

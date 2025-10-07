@@ -47,14 +47,26 @@ fun CalculatorView(
         }else{
             textDisplay = num
         }
-
         userIsTypingNumbers = true
     }
 
     val onOperatorPressed : (String) -> Unit = { operator ->
-
         calculatorBrain.doOperation(textDisplay.toDouble())
         calculatorBrain.operator =  CalculatorBrain.Operation.parse(operator)
+
+        if (calculatorBrain.acumulator % 1.0 == 0.0){
+            textDisplay = calculatorBrain.acumulator.toInt().toString()
+        }else {
+            textDisplay = calculatorBrain.acumulator.toString()
+        }
+        userIsTypingNumbers = false
+    }
+
+    val onUnaryOperatorPressed : (String) -> Unit = { operator ->
+
+        calculatorBrain.operator =  CalculatorBrain.Operation.parse(operator)
+        calculatorBrain.doOperation(textDisplay.toDouble())
+
 
         if (calculatorBrain.acumulator % 1.0 == 0.0){
             textDisplay = calculatorBrain.acumulator.toInt().toString()
@@ -70,11 +82,29 @@ fun CalculatorView(
     ){
         Text(textDisplay,
             fontSize = TextUnit(80f, TextUnitType.Sp),
+            lineHeight = TextUnit(80f, TextUnitType.Sp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             textAlign = TextAlign.Right
         )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            CalculatorButton("AC",
+                isOperator = true,
+                onClick = onUnaryOperatorPressed)
+            CalculatorButton("C",
+                isOperator = true,
+                onClick = { textDisplay = "0"})
+            CalculatorButton("√",
+                isOperator = true,
+                onClick = onUnaryOperatorPressed)
+            CalculatorButton("%",
+                isOperator = true,
+                onClick = onUnaryOperatorPressed)
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
@@ -111,9 +141,6 @@ fun CalculatorView(
             CalculatorButton("=", isOperator = true, onClick = onOperatorPressed)
             CalculatorButton("÷", isOperator = true, onClick = onOperatorPressed)
         }
-
-
-
     }
 
 }

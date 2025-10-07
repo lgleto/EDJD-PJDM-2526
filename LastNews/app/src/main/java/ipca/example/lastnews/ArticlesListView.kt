@@ -1,97 +1,95 @@
 package ipca.example.lastnews
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ipca.example.lastnews.models.Article
 import ipca.example.lastnews.ui.theme.LastNewsTheme
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import org.json.JSONObject
-import java.io.IOException
 
 
 @Composable
 fun ArticlesListView(modifier: Modifier = Modifier) {
 
-    var articles by remember { mutableStateOf(arrayListOf<Article>())  }
+    val viewModel : ArticlesListViewModel = viewModel()
+    val uiState by viewModel.uiState
 
-    LazyColumn(modifier = modifier) {
-        itemsIndexed(
-            articles
-        ){ index, article  ->
-            Card (
-                modifier = Modifier.padding(8.dp)
+
+    ArticlesListViewContent(
+        uiState = uiState,
+        modifier = modifier
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.loadArticles()
+    }
+}
+
+@Composable
+fun ArticlesListViewContent(
+    modifier: Modifier = Modifier,
+    uiState : ArticlesListState
+) {
+
+    Box(
+        modifier = modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        if (uiState.isLoading) {
+            CircularProgressIndicator()
+        } else if (uiState.error != null) {
+            Text(uiState.error)
+        } else {
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxSize()
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(article.title ?: "",
-                        fontSize = TextUnit(18f, TextUnitType.Sp)
-                    )
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    Text(article.description ?: "")
+                itemsIndexed(
+                    uiState.articles
+                ) { index, article ->
+                    ArticleViewCell(article)
                 }
             }
         }
     }
 
-    LaunchedEffect(Unit) {
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url("https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=1765f87e4ebc40229e80fd0f75b6416c")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
-
-                    val result = response.body!!.string()
-                    val jsonResult = JSONObject(result)
-                    val status = jsonResult.getString("status")
-                    val articlesResult = arrayListOf<Article>()
-                    if (status == "ok") {
-                        val articlesJSONArray = jsonResult.getJSONArray("articles")
-                        for (i in 0..<articlesJSONArray.length()) {
-                            val articleJSONObject = articlesJSONArray.getJSONObject(i)
-                            val article = Article.fromJSON(articleJSONObject)
-                            articlesResult.add(article)
-                        }
-                        articles = articlesResult
-                    }
-                }
-            }
-        })
-    }
 }
+
+
+
 
 @Preview(showBackground = true)
 @Composable
 fun ArticlesListViewPreview() {
     LastNewsTheme {
-        ArticlesListView()
+        ArticlesListViewContent(
+            uiState = ArticlesListState(
+                isLoading = false,
+                error = null,
+                articles = listOf(
+                    Article(
+                        author = "Author",
+                        title = "Title",
+                        description = "Description",
+                    ),
+                    Article(
+                        author = "Author",
+                        title = "Title",
+                        description = "Description",
+                    )
+                )
+            )
+        )
     }
 }
