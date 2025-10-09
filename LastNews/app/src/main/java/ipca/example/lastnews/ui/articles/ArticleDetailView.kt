@@ -1,6 +1,7 @@
 package ipca.example.lastnews.ui.articles
 
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -21,7 +22,12 @@ fun ArticleDetailView(
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = { context ->
-                WebView(context)
+                WebView(context).apply {
+                    settings.javaScriptEnabled = true
+                    webViewClient = WebViewClient()
+                    settings.loadWithOverviewMode = true
+                    settings.useWideViewPort = true
+                }
             },
             update = { webView ->
                 webView.loadUrl(articleUrl)

@@ -23,6 +23,7 @@ import ipca.example.lastnews.ui.theme.LastNewsTheme
 @Composable
 fun ArticlesListView(
     navController: NavController,
+    source : String,
     modifier: Modifier = Modifier
 ) {
 
@@ -37,7 +38,7 @@ fun ArticlesListView(
     )
 
     LaunchedEffect(Unit) {
-        viewModel.loadArticles()
+        viewModel.loadArticles(source)
     }
 }
 

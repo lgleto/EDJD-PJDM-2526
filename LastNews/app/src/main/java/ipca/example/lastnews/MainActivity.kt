@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,6 +27,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ipca.example.lastnews.ui.articles.ArticleDetailView
 import ipca.example.lastnews.ui.articles.ArticlesListView
+import ipca.example.lastnews.ui.components.MyBottomBar
+import ipca.example.lastnews.ui.components.MyTopBar
 import ipca.example.lastnews.ui.theme.LastNewsTheme
 
 class MainActivity : ComponentActivity() {
@@ -40,42 +43,45 @@ class MainActivity : ComponentActivity() {
             LastNewsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        TopAppBar(
-                            title = { Text(topBarTitle) },
-                            actions = {
-                                IconButton(onClick = {}) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Search,
-                                        contentDescription = "Search"
-                                    )
-                                }
-                            },
-                            navigationIcon = {
-
-                                if(!isHomeScreen) {
-                                    IconButton(onClick = {
-                                        navController.popBackStack()
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.ArrowBack,
-                                            contentDescription = "Search"
-                                        )
-                                    }
-                                }
-                            }
+                        MyTopBar(
+                            topBarTitle = topBarTitle,
+                            isHomeScreen = isHomeScreen,
+                            navController = navController
+                        )
+                    },
+                    bottomBar = {
+                        MyBottomBar(
+                            navController = navController
                         )
                     }
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "articles",
+                        startDestination = "bloomberg",
                         modifier = Modifier.padding(innerPadding)
                     ){
-                        composable("articles") {
+                        composable("bloomberg") {
+                            topBarTitle = "Bloomberg"
+                            isHomeScreen = true
+                            ArticlesListView(
+                                navController = navController,
+                                source = "bloomberg"
+                            )
+                        }
+                        composable("espn") {
+                            topBarTitle = "ESPN"
+                            isHomeScreen = true
+                            ArticlesListView(
+                                navController = navController,
+                                source = "espn"
+                            )
+                        }
+                        composable("techcrunch") {
                             topBarTitle = "Crunch Tech"
                             isHomeScreen = true
                             ArticlesListView(
-                                navController = navController
+                                navController = navController,
+                                source = "techcrunch"
                             )
                         }
                         composable("articles_detail/{articleUrl}") {
