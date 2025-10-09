@@ -1,4 +1,4 @@
-package ipca.example.lastnews
+package ipca.example.lastnews.ui.articles
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel

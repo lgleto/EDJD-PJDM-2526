@@ -1,6 +1,8 @@
 package ipca.example.lastnews.models
 
 import org.json.JSONObject
+import java.net.URLDecoder
+import java.net.URLEncoder
 
 data class Article (
     var author      : String? = null,
@@ -24,4 +26,12 @@ data class Article (
             return article
         }
     }
+}
+
+fun String.encodeUrl() : String {
+    return URLEncoder.encode(this, "UTF-8")
+}
+
+fun String.decodeUrl() : String {
+    return URLDecoder.decode(this, "UTF-8")
 }

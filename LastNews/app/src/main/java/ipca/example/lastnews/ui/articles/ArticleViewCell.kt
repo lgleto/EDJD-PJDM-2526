@@ -1,5 +1,6 @@
-package ipca.example.lastnews
+package ipca.example.lastnews.ui.articles
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,11 +21,15 @@ import ipca.example.lastnews.ui.theme.LastNewsTheme
 @Composable
 fun ArticleViewCell(
     article: Article,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     Card (
         modifier = modifier
             .fillMaxWidth()
+            .clickable{
+                onClick()
+            }
             .padding(8.dp)
     ) {
         Column(
