@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.compose.ui.geometry.Rect
@@ -14,18 +15,20 @@ import androidx.compose.ui.geometry.Rect
 class GameView : SurfaceView, Runnable {
     private var gameThread: Thread? = null
     private var isPlaying = false
-
     lateinit var surfaceHolder : SurfaceHolder
     lateinit var canvas: Canvas
     lateinit var paint: Paint
 
-    private fun init (context: Context?, width: Int, height: Int){
+    lateinit var player : Player
+
+    private fun init (context: Context, width: Int, height: Int){
         surfaceHolder = holder
         paint = Paint()
+        player = Player(context, width, height)
     }
 
     constructor(context: Context?,width: Int, height: Int) : super(context){
-        init(context, width, height)
+        init(context!!, width, height)
     }
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
@@ -56,8 +59,10 @@ class GameView : SurfaceView, Runnable {
     }
 
 
-    fun update() {
 
+
+    fun update() {
+        player.update()
     }
 
     fun draw(){
@@ -66,8 +71,11 @@ class GameView : SurfaceView, Runnable {
 
             canvas.drawColor(Color.RED)
 
-            paint.color = Color.GREEN
-            canvas.drawRect(RectF(100f, 100f, 200f, 200f), paint)
+            canvas.drawBitmap(player.bitmap!!,
+                player.x.toFloat(),
+                player.y.toFloat(),
+                paint)
+
 
             surfaceHolder.unlockCanvasAndPost(canvas)
         }
@@ -75,6 +83,20 @@ class GameView : SurfaceView, Runnable {
 
     fun control(){
         Thread.sleep(17)
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+
+        when(event.action){
+            MotionEvent.ACTION_DOWN -> {
+                player.isBoosting = true
+            }
+            MotionEvent.ACTION_UP -> {
+                player.isBoosting = false
+            }
+        }
+
+        return  true
     }
 
 
