@@ -4,8 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
+import java.util.Random
 
-public class Player {
+public class Enemy {
 
     var x = 0
     var y = 0
@@ -14,11 +15,10 @@ public class Player {
     var minY = 0
     var maxX = 0
     var minX = 0
-    var isBoosting = false
-    val GRAVITY = -10
+
     var bitmap: Bitmap
-    val MAX_SPEED = 20
-    val MIN_SPEED = 1
+
+    var generator = Random()
 
     var collisionBox : Rect
 
@@ -27,7 +27,7 @@ public class Player {
         bitmap = BitmapFactory
             .decodeResource(
                 context.resources,
-                R.drawable.player)
+                R.drawable.enemy)
 
         minX = 0
         maxX = with
@@ -35,34 +35,29 @@ public class Player {
         maxY = height - bitmap.height
         minY = 0
 
-        speed = 20
+        speed = generator.nextInt(6) + 10
 
-        x = 75
-        y = 50
+        x = maxX
+        y = generator.nextInt(maxY)
 
         collisionBox = Rect(x, y, bitmap.width, bitmap.height)
 
-
     }
 
-    fun update(){
+    fun update(playerSpeed : Int){
+        x -= speed
+        x -= playerSpeed
 
-        if (isBoosting) speed += 2
-        else speed -= 5
-        if (speed>MAX_SPEED) speed = MAX_SPEED
-        if (speed<MIN_SPEED) speed = MIN_SPEED
-
-        y -= speed + GRAVITY
-
-        if (y < minY) y = minY
-        if (y > maxY) y = maxY
+        if (x < -bitmap.width){
+            x = maxX
+            y = generator.nextInt(maxY)
+            speed = generator.nextInt(6) + 10
+        }
 
         collisionBox.left = x
         collisionBox.top = y
         collisionBox.right = x + bitmap.width
         collisionBox.bottom = y + bitmap.height
-
-
     }
 
 
