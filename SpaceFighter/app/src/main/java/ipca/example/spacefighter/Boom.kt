@@ -14,9 +14,9 @@ public class Boom {
     var minY = 0
     var maxX = 0
     var minX = 0
-
     var bitmap: Bitmap
-
+    var isOnScreen  = false
+    var framesCount = 0
 
     constructor(context: Context, with: Int, height: Int) {
 
@@ -35,6 +35,20 @@ public class Boom {
         y = -300
 
     }
+
+    fun update(){
+        if (isOnScreen) {
+            framesCount += 1
+            if (framesCount > 4) {
+                isOnScreen = false
+                framesCount = 0
+            }
+        }else{
+            x = -300
+            y = -300
+        }
+    }
+
 
 
 }

@@ -21,9 +21,10 @@ class GameView : SurfaceView, Runnable {
     lateinit var canvas: Canvas
     lateinit var paint: Paint
     lateinit var player : Player
-
     var stars = ArrayList<Star>()
     var enemies = ArrayList<Enemy>()
+
+    var bullets = ArrayList<Bullet>()
 
     lateinit var boom : Boom
 
@@ -43,10 +44,8 @@ class GameView : SurfaceView, Runnable {
         }
         boom = Boom(context, width, height)
 
-
         // 3. Initialize SoundPool and load the sound
         val audioAttributes = AudioAttributes.Builder()
-
             .build()
         soundPool = SoundPool.Builder()
             .setMaxStreams(5) // Allow up to 5 sounds to play simultaneously
@@ -87,12 +86,8 @@ class GameView : SurfaceView, Runnable {
         gameThread = null
     }
 
-
-
-
     fun update() {
-        boom.x = -300
-        boom.y = -300
+
         player.update()
         for (star in stars){
             star.update(player.speed)
@@ -100,17 +95,39 @@ class GameView : SurfaceView, Runnable {
         for (enemy in enemies){
             enemy.update(player.speed)
             if (Rect.intersects(enemy.collisionBox, player.collisionBox)) {
-
+                boom.isOnScreen = true
                 boom.x = enemy.x
                 boom.y = enemy.y
-
                 enemy.x = -300
-
                 // 4. Play the sound on collision
                 soundPool.play(soundIdExplosion, 1f, 1f, 0, 0, 1f)
-
             }
         }
+
+        var removePositions = arrayListOf<Int>()
+        for(i in 0..<bullets.size ) {
+            bullets[i].update(player.speed)
+            if (bullets[i].x > width)
+                removePositions.add(i)
+
+            for (enemy in enemies) {
+                if (enemy.collisionBox.contains(bullets[i].x, bullets[i].y)){
+
+                    removePositions.add(i)
+                    soundPool.play(soundIdExplosion, 1f, 1f, 0, 0, 1f)
+                    boom.isOnScreen = true
+                    boom.x = enemy.x
+                    boom.y = enemy.y
+                    enemy.x = -300
+                }
+            }
+        }
+
+        for(position in removePositions){
+            bullets.removeAt(position)
+        }
+        boom.update()
+
 
     }
 
@@ -155,6 +172,17 @@ class GameView : SurfaceView, Runnable {
                 boom.x.toFloat(),
                 boom.y.toFloat(), paint)
 
+            paint.color = Color.WHITE
+
+
+            for (bullet in bullets){
+                paint.strokeWidth =  16f
+                canvas.drawPoint(
+                    bullet.x.toFloat(),
+                    bullet.y.toFloat(),
+                    paint)
+            }
+
 
             surfaceHolder.unlockCanvasAndPost(canvas)
         }
@@ -169,6 +197,8 @@ class GameView : SurfaceView, Runnable {
         when(event.action){
             MotionEvent.ACTION_DOWN -> {
                 player.isBoosting = true
+                bullets.add(Bullet(context, width, height, player.x, player.y + (player.height/2) ))
+
             }
             MotionEvent.ACTION_UP -> {
                 player.isBoosting = false

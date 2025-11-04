@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1067240749291",
+    "project_id": "gametips-f6fbc",
+    "storage_bucket": "gametips-f6fbc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067240749291:android:72c21033b80f4ece2066ae",
+        "android_client_info": {
+          "package_name": "ipca.example.gametips"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6DkznH16JU8Odep6cnl5PvEwIpK4Jjuo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

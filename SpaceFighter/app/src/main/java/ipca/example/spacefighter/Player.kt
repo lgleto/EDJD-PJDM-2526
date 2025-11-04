@@ -20,6 +20,9 @@ public class Player {
     val MAX_SPEED = 20
     val MIN_SPEED = 1
 
+    var width : Int
+    var height : Int
+
     var collisionBox : Rect
 
     constructor(context: Context, with: Int, height: Int) {
@@ -28,6 +31,10 @@ public class Player {
             .decodeResource(
                 context.resources,
                 R.drawable.player)
+
+       this.width = bitmap.width
+       this.height = bitmap.height
+
 
         minX = 0
         maxX = with
