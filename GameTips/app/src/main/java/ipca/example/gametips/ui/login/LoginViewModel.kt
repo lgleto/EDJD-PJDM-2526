@@ -31,7 +31,7 @@ class LoginViewModel : ViewModel() {
         )
     }
 
-    fun login() {
+    fun login(onLoginSuccess : () -> Unit) {
         uiState.value = uiState.value.copy(
             loading = true
         )
@@ -61,6 +61,7 @@ class LoginViewModel : ViewModel() {
                     Log.d(TAG, "signInWithEmail:success")
                     val user = auth.currentUser
                     //updateUI(user)
+                    onLoginSuccess()
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)

@@ -1,4 +1,4 @@
-package ipca.example.gametips.ui.login
+package ipca.example.gametips.ui.gamestips
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,15 +16,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import ipca.example.gametips.ui.login.LoginViewModel
 import ipca.example.gametips.ui.theme.GameTipsTheme
 
+
 @Composable
-fun LoginView(
+fun AddGameView(
     modifier: Modifier = Modifier,
     navController : NavController
 ){
 
-    val viewModel : LoginViewModel = viewModel()
+    val viewModel : AddGameViewModel = viewModel()
     val uiState by viewModel.uiState
 
 
@@ -36,35 +38,33 @@ fun LoginView(
     ){
         TextField(
             modifier = Modifier.padding(8.dp),
-            value = uiState.email,
+            value = uiState.name,
             onValueChange = {
-                viewModel.onChangeEmail(it)
+                viewModel.onChangeName(it)
             },
             label = {
-                Text("email")
+                Text("name")
             }
         )
         TextField(
             modifier = Modifier.padding(8.dp),
-            value = uiState.password,
+            value = uiState.description,
             onValueChange = {
-                viewModel.onChangePassword(it)
+                viewModel.onChangeDescription(it)
             },
             label = {
-                Text("password")
+                Text("description")
             }
         )
-        if (uiState.error != null) {
-            Text(uiState.error!!)
-        }
+
         Button(
             modifier = Modifier.padding(8.dp),
             onClick = {
-                viewModel.login(onLoginSuccess = {
-                    navController.navigate("home")
+                viewModel.addGame(onAddGameSuccess = {
+                    navController.popBackStack()
                 })
-        }) {
-            Text("Login")
+            }) {
+            Text("Add Game")
         }
     }
 
@@ -74,7 +74,7 @@ fun LoginView(
 @Composable
 fun LoginViewPreview() {
     GameTipsTheme {
-        LoginView(
+        AddGameView(
             navController = rememberNavController()
         )
     }
