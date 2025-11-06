@@ -51,7 +51,7 @@ fun GameTipsView(
                 items = uiState.games,
             ) { index, game ->
                 GameTipCellView(game = game) {
-
+                    navController.navigate("tips/${game.docId}")
                 }
             }
         }

@@ -7,16 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import ipca.example.gametips.ui.tips.TipsView
 import ipca.example.gametips.ui.gamestips.AddGameView
 import ipca.example.gametips.ui.gamestips.GameTipsView
 import ipca.example.gametips.ui.login.LoginView
@@ -49,6 +47,17 @@ class MainActivity : ComponentActivity() {
                             AddGameView(
                                 navController = navController
                             )
+                        }
+                        composable ("tips/{gameId}"){
+                            val gameId = it.arguments?.getString("gameId")?:""
+                            TipsView(
+                                navController = navController,
+                                gameId = gameId
+                            )
+                        }
+                        composable ("add_tip/{gameId}"){
+                            val gameId = it.arguments?.getString("gameId")?:""
+
                         }
                     }
                 }

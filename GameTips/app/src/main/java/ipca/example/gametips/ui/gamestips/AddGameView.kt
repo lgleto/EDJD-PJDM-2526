@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import ipca.example.gametips.ui.login.LoginViewModel
 import ipca.example.gametips.ui.theme.GameTipsTheme
 
 
