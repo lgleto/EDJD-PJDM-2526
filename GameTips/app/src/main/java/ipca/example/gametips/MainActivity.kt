@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +22,10 @@ import ipca.example.gametips.ui.tips.TipsView
 import ipca.example.gametips.ui.gamestips.AddGameView
 import ipca.example.gametips.ui.gamestips.GameTipsView
 import ipca.example.gametips.ui.login.LoginView
+import ipca.example.gametips.ui.profile.ProfileView
 import ipca.example.gametips.ui.theme.GameTipsTheme
+import ipca.example.lastnews.ui.components.MyBottomBar
+import ipca.example.lastnews.ui.components.MyTopBar
 
 const val TAG = "GameTips"
 
@@ -28,8 +35,24 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            var title by remember { mutableStateOf("Game Tips") }
+            var isHome by remember { mutableStateOf(true) }
             GameTipsTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        MyBottomBar(
+                            navController = navController
+                        )
+                    },
+                    topBar = {
+                        MyTopBar(
+                            topBarTitle = title,
+                            isHomeScreen = isHome,
+                            navController
+                        )
+                    }
+                    ) { innerPadding ->
                     NavHost(
                         navController = navController,
                         startDestination = "login",
@@ -39,25 +62,28 @@ class MainActivity : ComponentActivity() {
                             LoginView(navController = navController)
                         }
                         composable("home"){
+                            isHome = true
                             GameTipsView(
                                 navController = navController
                             )
                         }
                         composable ("add_game"){
+                            isHome = false
                             AddGameView(
                                 navController = navController
                             )
                         }
                         composable ("tips/{gameId}"){
+                            isHome = false
                             val gameId = it.arguments?.getString("gameId")?:""
                             TipsView(
                                 navController = navController,
                                 gameId = gameId
                             )
                         }
-                        composable ("add_tip/{gameId}"){
-                            val gameId = it.arguments?.getString("gameId")?:""
-
+                        composable ("profile"){
+                            isHome = true
+                            ProfileView()
                         }
                     }
                 }

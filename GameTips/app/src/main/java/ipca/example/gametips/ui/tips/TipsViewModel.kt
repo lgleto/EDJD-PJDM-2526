@@ -4,12 +4,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 import ipca.example.gametips.models.Tip
+import ipca.example.gametips.models.User
 
 data class TipsState(
     var tips : List<Tip> = emptyList(),
+    var users : List<User> = emptyList(),
     var newTip : String = "",
     var error : String? = null,
     var loading : Boolean = false
@@ -23,6 +26,10 @@ class TipsViewModel : ViewModel() {
         uiState.value = uiState.value.copy(
             newTip = newTip
         )
+    }
+
+    fun getUserWithId(userId : String) : User? {
+        return uiState.value.users.find { it.docId == userId }
     }
 
     fun loadTips(gameId : String) {
@@ -55,6 +62,22 @@ class TipsViewModel : ViewModel() {
                     tips = tips,
                     loading = false
                 )
+
+                db.collection("users")
+                    .whereIn(FieldPath.documentId(), tips.map { it.userId?:"" })
+                    .get()
+                    .addOnSuccessListener{
+                        val users = mutableListOf<User>()
+                        for (document in it?.documents?:emptyList()) {
+                            val user = document.toObject<User>()
+                            user?.docId = document.id
+                            if (user != null)
+                                users.add(user)
+                        }
+                        uiState.value = uiState.value.copy(
+                            users = users
+                        )
+                    }
             }
     }
 

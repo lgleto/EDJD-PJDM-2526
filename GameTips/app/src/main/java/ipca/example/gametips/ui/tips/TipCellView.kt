@@ -14,12 +14,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ipca.example.gametips.models.Tip
+import ipca.example.gametips.models.User
 import ipca.example.gametips.ui.theme.GameTipsTheme
 
 @Composable
 fun TipCellView(
     modifier: Modifier = Modifier,
     tip : Tip,
+    user : User? = null,
     onClick : () -> Unit = {}
 ){
     Card (
@@ -33,6 +35,21 @@ fun TipCellView(
         Column(
             modifier = Modifier.padding(8.dp),
         ) {
+            if (user != null){
+                Text(
+                    user.name ?: user.email?:"",
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                    )
+                )
+            }else{
+                Text(
+                    tip.userId!!,
+                    style = TextStyle(
+                        fontSize = 12.sp,
+                    ),
+                )
+            }
             Text(tip.comment?:"",
                 style = TextStyle(
                     fontSize = 20.sp,
@@ -50,7 +67,8 @@ fun TipCellViewPreview() {
     GameTipsTheme {
         TipCellView(
            tip = Tip(
-               comment = "Comment 1"
+               comment = "Comment 1",
+               userId = "User 1"
            )
         )
     }

@@ -62,7 +62,10 @@ fun TipsView(
             itemsIndexed(
                 items = uiState.tips,
             ) { index, tip ->
-                TipCellView(tip = tip) {
+                TipCellView(
+                    tip = tip,
+                    user = viewModel.getUserWithId(tip.userId?:"")
+                    ) {
 
                 }
             }
