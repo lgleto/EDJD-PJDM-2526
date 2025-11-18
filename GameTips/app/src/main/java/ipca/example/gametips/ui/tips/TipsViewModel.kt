@@ -64,7 +64,7 @@ class TipsViewModel : ViewModel() {
                 )
 
                 db.collection("users")
-                    .whereIn(FieldPath.documentId(), tips.map { it.userId?:"" })
+                    //.whereIn(FieldPath.documentId(), tips.map { it.userId?:"" })
                     .get()
                     .addOnSuccessListener{
                         val users = mutableListOf<User>()

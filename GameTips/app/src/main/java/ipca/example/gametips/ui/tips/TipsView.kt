@@ -31,6 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import ipca.example.gametips.R
+import ipca.example.gametips.models.Tip
 import ipca.example.gametips.ui.theme.GameTipsTheme
 
 
@@ -38,10 +39,11 @@ import ipca.example.gametips.ui.theme.GameTipsTheme
 fun TipsView(
     modifier: Modifier = Modifier,
     navController : NavController,
+    viewModel : TipsViewModel = viewModel(),
     gameId : String
 ){
 
-    val viewModel : TipsViewModel = viewModel()
+
     val uiState by viewModel.uiState
 
     LaunchedEffect(Unit) {
@@ -49,15 +51,16 @@ fun TipsView(
     }
 
     Column  (
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxSize(),
 
     ){
         LazyColumn(
-            modifier = modifier
-                .fillMaxWidth()
+            modifier = Modifier
+                .fillMaxSize()
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+
         ) {
             itemsIndexed(
                 items = uiState.tips,
@@ -101,9 +104,7 @@ fun TipsView(
             )
 
         }
-
     }
-
 }
 
 @Preview(showBackground = true)
@@ -112,7 +113,22 @@ fun GameTipsViewPreview() {
     GameTipsTheme {
         TipsView(
             navController = rememberNavController(),
-            gameId = "gameId"
+
+            gameId = "gameId",
+            viewModel = viewModel<TipsViewModel>().apply{
+                uiState.value = TipsState(
+                    tips = listOf(
+                        Tip(
+                            comment = "Comment 1",
+                            userId = "User 1"
+                        ),
+                        Tip(
+                            comment = "Comment 2",
+                            userId = "User 2"
+                        ),
+                    )
+                )
+            }
         )
     }
 }
