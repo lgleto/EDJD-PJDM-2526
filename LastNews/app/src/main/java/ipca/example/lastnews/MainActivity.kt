@@ -20,16 +20,24 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ipca.example.lastnews.models.AppDatabase
+import ipca.example.lastnews.models.Article
 import ipca.example.lastnews.ui.articles.ArticleDetailView
+import ipca.example.lastnews.ui.articles.ArticlesFavoritesListView
 import ipca.example.lastnews.ui.articles.ArticlesListView
 import ipca.example.lastnews.ui.components.MyBottomBar
 import ipca.example.lastnews.ui.components.MyTopBar
 import ipca.example.lastnews.ui.theme.LastNewsTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -40,13 +48,25 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             var topBarTitle by remember{mutableStateOf("")}
             var isHomeScreen by remember { mutableStateOf(true) }
+            var clickedArticle by remember { mutableStateOf<Article?>(null) }
+            val context = LocalContext.current
+            var scope = rememberCoroutineScope()
             LastNewsTheme {
                 Scaffold(modifier = Modifier.fillMaxSize(),
                     topBar = {
                         MyTopBar(
                             topBarTitle = topBarTitle,
                             isHomeScreen = isHomeScreen,
-                            navController = navController
+                            navController = navController,
+                            onClickFavorite = {
+                                scope.launch (Dispatchers.IO) {
+                                    AppDatabase
+                                        .getInstance(context)
+                                        ?.articleDao()
+                                        ?.insert(clickedArticle!!)
+                                }
+
+                            }
                         )
                     },
                     bottomBar = {
@@ -65,7 +85,8 @@ class MainActivity : ComponentActivity() {
                             isHomeScreen = true
                             ArticlesListView(
                                 navController = navController,
-                                source = "bloomberg"
+                                source = "bloomberg",
+                                onArticleClick = { clickedArticle = it }
                             )
                         }
                         composable("espn") {
@@ -73,7 +94,8 @@ class MainActivity : ComponentActivity() {
                             isHomeScreen = true
                             ArticlesListView(
                                 navController = navController,
-                                source = "espn"
+                                source = "espn",
+                                onArticleClick = { clickedArticle = it }
                             )
                         }
                         composable("techcrunch") {
@@ -81,7 +103,15 @@ class MainActivity : ComponentActivity() {
                             isHomeScreen = true
                             ArticlesListView(
                                 navController = navController,
-                                source = "techcrunch"
+                                source = "techcrunch",
+                                onArticleClick = { clickedArticle = it }
+                            )
+                        }
+                        composable ("favorites"){
+                            topBarTitle = "Favorites"
+                            isHomeScreen = true
+                            ArticlesFavoritesListView(
+                                navController = navController
                             )
                         }
                         composable("articles_detail/{articleUrl}") {

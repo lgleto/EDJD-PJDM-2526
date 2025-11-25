@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -21,18 +22,18 @@ import ipca.example.lastnews.ui.theme.LastNewsTheme
 
 
 @Composable
-fun ArticlesListView(
+fun ArticlesFavoritesListView(
     navController: NavController,
-    source : String,
     modifier: Modifier = Modifier,
     onArticleClick : (Article) -> Unit = {}
 ) {
 
-    val viewModel : ArticlesListViewModel = viewModel()
+    val viewModel : ArticlesFavoritesListViewModel = viewModel()
     val uiState by viewModel.uiState
+    val context = LocalContext.current
 
 
-    ArticlesListViewContent(
+    ArticlesFavortiesListViewContent(
         uiState = uiState,
         modifier = modifier,
         navController = navController,
@@ -40,14 +41,14 @@ fun ArticlesListView(
     )
 
     LaunchedEffect(Unit) {
-        viewModel.loadArticles(source)
+        viewModel.loadArticles(context)
     }
 }
 
 @Composable
-fun ArticlesListViewContent(
+fun ArticlesFavortiesListViewContent(
     modifier: Modifier = Modifier,
-    uiState : ArticlesListState,
+    uiState : ArticlesFavoritesListState,
     navController: NavController,
     onArticleClick : (Article) -> Unit = {}
 ) {
@@ -85,11 +86,11 @@ fun ArticlesListViewContent(
 
 @Preview(showBackground = true)
 @Composable
-fun ArticlesListViewPreview() {
+fun ArticlesFavoritesListViewPreview() {
     LastNewsTheme {
-        ArticlesListViewContent(
+        ArticlesFavortiesListViewContent(
             navController = rememberNavController(),
-            uiState = ArticlesListState(
+            uiState = ArticlesFavoritesListState(
                 isLoading = false,
                 error = null,
                 articles = listOf(
