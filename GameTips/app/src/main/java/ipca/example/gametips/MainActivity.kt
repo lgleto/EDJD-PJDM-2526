@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import dagger.hilt.android.AndroidEntryPoint
 import ipca.example.gametips.ui.tips.TipsView
 import ipca.example.gametips.ui.gamestips.AddGameView
 import ipca.example.gametips.ui.gamestips.GameTipsView
@@ -29,6 +30,7 @@ import ipca.example.lastnews.ui.components.MyTopBar
 
 const val TAG = "GameTips"
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
