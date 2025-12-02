@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -39,7 +40,7 @@ import ipca.example.gametips.ui.theme.GameTipsTheme
 fun TipsView(
     modifier: Modifier = Modifier,
     navController : NavController,
-    viewModel : TipsViewModel = viewModel(),
+    viewModel : TipsViewModel = hiltViewModel(),
     gameId : String
 ){
 
@@ -67,9 +68,9 @@ fun TipsView(
             ) { index, tip ->
                 TipCellView(
                     tip = tip,
-                    user = viewModel.getUserWithId(tip.userId?:"")
+                    user = tip.user
                     ) {
-
+                    viewModel.deleteTip(gameId, tip)
                 }
             }
         }

@@ -2,23 +2,32 @@ package ipca.example.gametips.ui.tips
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ipca.example.gametips.models.Tip
 import ipca.example.gametips.models.User
+import ipca.example.gametips.repositories.ResultWrapper
+import ipca.example.gametips.repositories.TipsRepository
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 data class TipsState(
     var tips : List<Tip> = emptyList(),
-    var users : List<User> = emptyList(),
     var newTip : String = "",
     var error : String? = null,
     var loading : Boolean = false
 )
 
-class TipsViewModel : ViewModel() {
+@HiltViewModel
+class TipsViewModel @Inject constructor(
+    val tipsRepository: TipsRepository
+) : ViewModel() {
     var uiState = mutableStateOf(TipsState())
         private set
 
@@ -28,57 +37,31 @@ class TipsViewModel : ViewModel() {
         )
     }
 
-    fun getUserWithId(userId : String) : User? {
-        return uiState.value.users.find { it.docId == userId }
-    }
 
     fun loadTips(gameId : String) {
-        uiState.value = uiState.value.copy(
-            loading = true
-        )
-
-        val db = Firebase.firestore
-        db.collection("games")
-            .document(gameId)
-            .collection("tips")
-            .addSnapshotListener { value, error ->
-
-                if (error != null) {
+        tipsRepository.getAll(gameId).onEach { result ->
+            when(result) {
+                is ResultWrapper.Success -> {
                     uiState.value = uiState.value.copy(
-                        error = error.message,
-                        loading = false
+                        loading = false,
+                        error = null,
+                        tips = result.data?: emptyList()
                     )
-                    return@addSnapshotListener
                 }
-
-                val tips = mutableListOf<Tip>()
-                for (document in value?.documents?:emptyList()) {
-                    val tip = document.toObject<Tip>()
-                    tip?.docId = document.id
-                    if (tip != null)
-                        tips.add(tip)
+                is ResultWrapper.Loading-> {
+                    uiState.value = uiState.value.copy(
+                        loading = true,
+                        error = null
+                    )
                 }
-                uiState.value = uiState.value.copy(
-                    tips = tips,
-                    loading = false
-                )
-
-                db.collection("users")
-                    //.whereIn(FieldPath.documentId(), tips.map { it.userId?:"" })
-                    .get()
-                    .addOnSuccessListener{
-                        val users = mutableListOf<User>()
-                        for (document in it?.documents?:emptyList()) {
-                            val user = document.toObject<User>()
-                            user?.docId = document.id
-                            if (user != null)
-                                users.add(user)
-                        }
-                        uiState.value = uiState.value.copy(
-                            users = users
-                        )
-                    }
+                is ResultWrapper.Error -> {
+                    uiState.value = uiState.value.copy(
+                        loading = false,
+                        error = result.message?:"unknown error"
+                    )
+                }
             }
+        }.launchIn(viewModelScope)
     }
 
     fun addTip(gameId: String){
@@ -91,16 +74,55 @@ class TipsViewModel : ViewModel() {
             userId = Firebase.auth.currentUser?.uid
         )
 
-        val db = Firebase.firestore
-        db.collection("games")
-            .document(gameId)
-            .collection("tips")
-            .add(tip)
-            .addOnSuccessListener {
-                uiState.value = uiState.value.copy(
-                    newTip = ""
-                )
+        tipsRepository.add(gameId, tip).onEach { result ->
+            when(result) {
+                is ResultWrapper.Success -> {
+                    uiState.value = uiState.value.copy(
+                        loading = false,
+                        error = null,
+                        newTip = ""
+                    )
+                }
+                is ResultWrapper.Loading-> {
+                    uiState.value = uiState.value.copy(
+                        loading = true,
+                        error = null
+                    )
+                }
+                is ResultWrapper.Error -> {
+                    uiState.value = uiState.value.copy(
+                        loading = false,
+                        error = result.message?:"unknown error"
+                    )
+                }
             }
+        }.launchIn(viewModelScope)
+    }
+
+    fun deleteTip(gameId : String, tip: Tip){
+
+        tipsRepository.delete(gameId, tip).onEach { result ->
+            when(result) {
+                is ResultWrapper.Success -> {
+                    uiState.value = uiState.value.copy(
+                        loading = false,
+                        error = null,
+                    )
+                }
+                is ResultWrapper.Loading-> {
+                    uiState.value = uiState.value.copy(
+                        loading = true,
+                        error = null
+                    )
+                }
+                is ResultWrapper.Error -> {
+                    uiState.value = uiState.value.copy(
+                        loading = false,
+                        error = result.message?:"unknown error"
+                    )
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 }
 

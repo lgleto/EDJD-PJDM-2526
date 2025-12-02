@@ -2,10 +2,17 @@ package ipca.example.gametips.ui.gamestips
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ipca.example.gametips.models.Game
+import ipca.example.gametips.repositories.GameRepository
+import ipca.example.gametips.repositories.ResultWrapper
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 data class GamesTipsState(
     var games : List<Game> = emptyList(),
@@ -13,38 +20,37 @@ data class GamesTipsState(
     var loading : Boolean = false
 )
 
-class GameTipsViewModel : ViewModel() {
+@HiltViewModel
+class GameTipsViewModel @Inject constructor(
+    val gameRepository: GameRepository
+) : ViewModel() {
     var uiState = mutableStateOf(GamesTipsState())
         private set
 
     fun loadGames() {
-        uiState.value = uiState.value.copy(
-            loading = true
-        )
-        val db = Firebase.firestore
-        db.collection("games")
-            .addSnapshotListener { value, error ->
-
-                if (error != null) {
+        gameRepository.getAll().onEach { result ->
+            when(result) {
+                is ResultWrapper.Success -> {
                     uiState.value = uiState.value.copy(
-                        error = error.message,
-                        loading = false
+                        loading = false,
+                        error = null,
+                        games = result.data?: emptyList()
                     )
-                    return@addSnapshotListener
                 }
-
-                val games = mutableListOf<Game>()
-                for (document in value?.documents?:emptyList()) {
-                    val game = document.toObject<Game>()
-                    game?.docId = document.id
-                    if (game != null)
-                        games.add(game)
+                is ResultWrapper.Loading-> {
+                    uiState.value = uiState.value.copy(
+                        loading = true,
+                        error = null
+                    )
                 }
-                uiState.value = uiState.value.copy(
-                    games = games,
-                    loading = false
-                )
+                is ResultWrapper.Error -> {
+                    uiState.value = uiState.value.copy(
+                        loading = false,
+                        error = result.message?:"unknown error"
+                    )
+                }
             }
+        }.launchIn(viewModelScope)
 
     }
 
