@@ -40,7 +40,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Check if message contains a notification payload.
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Notification Body: ${it.body}")
-            sendNotification(it.body.toString())
+            //sendNotification(it.body.toString())
+            val intent = Intent("broadcast_message")
+            intent.putExtra("message", it.body)
+            sendBroadcast(intent)
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
@@ -68,6 +71,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
         }
         sendRegistrationToServer(token)
+
     }
     // [END on_new_token]
 

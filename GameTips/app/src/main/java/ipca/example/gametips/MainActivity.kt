@@ -1,7 +1,10 @@
 package ipca.example.gametips
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
@@ -15,14 +18,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -94,6 +104,8 @@ class MainActivity : ComponentActivity() {
             var title by remember { mutableStateOf("Game Tips") }
             var isHome by remember { mutableStateOf(true) }
             val context = LocalContext.current
+            val snackbarHostState = remember { SnackbarHostState() }
+            val coroutineScope = rememberCoroutineScope()
 
             val permissionLauncher = rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestMultiplePermissions()
@@ -120,6 +132,13 @@ class MainActivity : ComponentActivity() {
                             isHomeScreen = isHome,
                             navController
                         )
+                    },
+                    snackbarHost = {
+                        SnackbarHost(snackbarHostState){data ->
+                            Snackbar(
+                                snackbarData = data,
+                            )
+                        }
                     }
                     ) { innerPadding ->
                     NavHost(
@@ -170,7 +189,36 @@ class MainActivity : ComponentActivity() {
                     // request permissions
                     permissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
                 }
+            }
 
+            DisposableEffect(context) {
+                val intentFilter = IntentFilter("broadcast_message")
+                val broadcastReceiver = object : BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) {
+                        if (intent?.action == "broadcast_message") {
+                            val message = intent.getStringExtra("message")
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = message?:"no message",
+                                    actionLabel = "Dismiss",
+                                    withDismissAction = true,
+                                    duration = SnackbarDuration.Long
+                                )
+                            }
+                        }
+                    }
+                }
+
+                ContextCompat.registerReceiver(
+                    context,
+                    broadcastReceiver,
+                    intentFilter,
+                    ContextCompat.RECEIVER_EXPORTED
+                )
+
+                onDispose {
+                    context.unregisterReceiver(broadcastReceiver)
+                }
             }
         }
     }
